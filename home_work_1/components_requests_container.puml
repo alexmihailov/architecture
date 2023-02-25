@@ -1,0 +1,26 @@
+@startuml Component_Requests_Container
+!include <C4/C4_Component>
+
+Container(beContainer, "Бэкенд-приложение оператора связи", "Java/Kotlin and Akka/Play/Lagom")
+ContainerDb(dbAvailableContainer, "База данных адресов доступных для подключения")
+ContainerDb(dbCheckTasksContainer, "База данных задач на проверку доступности к подключению")
+Container(beNotificationsContainer, "Сервис отправки уведомлений", "Java/Kotlin and Akka")
+
+Container_Boundary(beRequestsContainer, "Сервис проверки доступности подключения") {
+    Component(restController, "REST-контроллер", "Lagom Service")
+    Component(checkConnectAvailableModule, "Модуль проверки доступности подключения")
+    Component(requestsWorkerModule, "Модуль выполнения задач на проверку доступности подключения", "Akka Actor")
+}
+
+Rel(beContainer, restController, "Запрос на проверку доступности подключения", "JSON/HTTPS")
+Rel(restController, checkConnectAvailableModule, "Проверить адрес на доступность к подключению")
+Rel(checkConnectAvailableModule, dbAvailableContainer, "Найти адрес в списке адресов доступных к подключению", "JDBC")
+Rel(checkConnectAvailableModule, requestsWorkerModule, "Создать задачу на проверку доступности")
+Rel(requestsWorkerModule, dbCheckTasksContainer, "Завести задачку на проверку доступности адреса к подключению", "JDBC")
+Rel(requestsWorkerModule, requestsWorkerModule, "Проверить наличие заявок на проверку подключения", "Timer")
+Rel(requestsWorkerModule, dbCheckTasksContainer, "Выбрать невыполненную заявку на проверку подключения", "JDBC")
+Rel(requestsWorkerModule, checkConnectAvailableModule, "Проверить адрес на доступность к подключению")
+Rel(requestsWorkerModule, beNotificationsContainer, "Для выполненной заявки отправить статус проверки клиенту", "JSON/HTTPS")
+
+SHOW_LEGEND()
+@enduml

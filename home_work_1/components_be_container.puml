@@ -1,0 +1,28 @@
+@startuml Component_Be_Container
+!include <C4/C4_Component>
+
+Container(feContainer, "Веб-сайт оператора связи", "JavaScript and React")
+Container(mobileAppContainer, "Мобильное приложение оператора связи", "Andoid/IOS and Kotlin Multiplatform")
+ContainerDb(dbAllContainer, "База данных всех адресов")
+System_Ext(geoIpSystem, "Geo IP System", "Система для определения местоположения по IP-адресу или координатам GPS")
+Container(beRequestsContainer, "Сервис проверки доступности подключения")
+
+Container_Boundary(beContainer, "Бэкенд-приложение оператора связи") {
+    Component(restController, "REST-контроллер", "Lagom Service")
+    Component(addressSearchModule, "Модуль поиска адреса", "", "Осуществляет поиск по частичному имени адреса, IP-адресу, GPS-координатам")
+    Component(requestsClient, "Клиент для обращения к сервису проверки доступности подключения")
+    Component(connectModule, "Модуль формирования заявки на подключение")
+}
+
+Rel(feContainer, restController, "Вызов API", "JSON/HTTPS")
+Rel(mobileAppContainer, restController, "Вызов API", "JSON/HTTPS")
+
+Rel(restController, addressSearchModule, "Поиск адреса")
+Rel(addressSearchModule, dbAllContainer, "Поиск по частичному или полному имени адреса", "JDBC")
+Rel(addressSearchModule, geoIpSystem, "Получить адрес по IP-адресу или координатам GPS", "JSON/HTTPS")
+Rel(restController, requestsClient, "Произвести проверку доступности подключения")
+Rel(requestsClient, beRequestsContainer, "Запрос на проверку доступности подключения", "JSON/HTTPS")
+Rel(restController, connectModule, "Сформировать заявку на подключение")
+
+SHOW_LEGEND()
+@enduml

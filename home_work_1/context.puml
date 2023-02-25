@@ -1,11 +1,18 @@
 @startuml Context
 !include <C4/C4_Context>
 
-Person(personAlias, "Клиент", "Подает заявку на подключение домашнего интернета")
-System(systemAlias, "Система заявок", "Принимает заявки на подключение домашнего интернета через сайт оператора или мобильное приложение")
-System_Ext(geoIpSystemAlias, "Geo IP System", "Система для определения местоположения по IP-адресу или координатам GPS")
+Person(client, "Клиент", "Подает заявку на подключение домашнего интернета")
+System(system, "Система заявок", "Принимает заявки на подключение домашнего интернета через сайт оператора или мобильное приложение")
+System_Ext(geoIpSystem, "Geo IP System", "Система для определения местоположения по IP-адресу или координатам GPS")
+System_Ext(emailSystem, "Email System", "Система для отправки email сообщений")
+System_Ext(pushSystem, "Push Notifications System", "Система для отправки push уведомлений")
 
-Rel(personAlias, systemAlias, "Поиск адреса, проверка возможности подключения, оформление заявки")
-Rel_Right(systemAlias, geoIpSystemAlias, "Получить адрес по IP-адресу или координатам GPS")
+
+Rel(client, system, "Поиск адреса, проверка возможности подключения, оформление заявки")
+Rel_Right(system, geoIpSystem, "Получить адрес по IP-адресу или координатам GPS")
+Rel(system, emailSystem, "Отправить сообщение по email")
+Rel(emailSystem, client, "Отправляет email сообщение клиенту")
+Rel(system, pushSystem, "Отправить push нотификацию на телефон")
+Rel(pushSystem, client, "Отправляет push нотификацию на телефон")
 SHOW_LEGEND()
 @enduml
